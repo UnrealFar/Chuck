@@ -17,7 +17,10 @@ class Events(commands.Cog):
         welcomeEm = discord.Embed(description = f"Welcome to {member.guild}, {member.mention}")
         welcomeEm.set_thumbnail(url = member.avatar.url)
         welcomeEm.set_author(name = member.name, icon_url = member.avatar.url)
-        welcomeEm.set_footer(text = member.guild.name, icon_url = member.guild.icon.url)
+        try:
+            welcomeEm.set_footer(text = member.guild.name, icon_url = member.guild.icon.url)
+        except:
+            pass
         welcomeEm.timestamp = datetime.datetime.utcnow()
         if channel:
             await channel.send(embed = welcomeEm)
@@ -40,7 +43,10 @@ class Events(commands.Cog):
         welcomeEm = discord.Embed(description = f"{member.mention} has left us!")
         welcomeEm.set_thumbnail(url = member.avatar.url)
         welcomeEm.set_author(name = member.name, icon_url = member.display_avatar.url)
-        welcomeEm.set_footer(text = member.guild.name, icon_url = member.guild.icon.url)
+        try:
+            welcomeEm.set_footer(text = member.guild.name, icon_url = member.guild.icon.url)
+        except:
+            pass
         welcomeEm.timestamp = datetime.datetime.utcnow()
         if channel:
             await channel.send(embed = welcomeEm)
