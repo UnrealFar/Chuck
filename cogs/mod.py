@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ext.commands import has_permissions
 import discord
 
+import asyncio
 import json
 
 class Mod(commands.Cog):
@@ -11,6 +12,7 @@ class Mod(commands.Cog):
         self.bot = bot
 
     @commands.command(name="kick")
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     @has_permissions(kick_members=True)
     async def kick(self, ctx, member:discord.Member, *,reason=None):
         """Kicks a member from the guild"""
@@ -18,6 +20,7 @@ class Mod(commands.Cog):
         await ctx.send(f"{member.mention} has been kicked for: {reason}")
 
     @commands.command(name="ban")
+    @commands.cooldown(2, 15, commands.BucketType.guild)
     @has_permissions(ban_members=True)
     async def ban(self, ctx, member:discord.Member, *,reason=None):
         """Bans a member from the guild"""
@@ -25,6 +28,8 @@ class Mod(commands.Cog):
         await ctx.send(f"{member.mention} has been banned for: {reason}")
 
     @commands.command(name="unban")
+    @commands.cooldown(1, 5, commands.BucketType.guild)
+    @has_permissions(ban_members=True)
     async def unban(self, ctx, *, member):
         """Unbans a member from the guild"""
         banned_users = await ctx.guild.bans()
@@ -36,6 +41,7 @@ class Mod(commands.Cog):
             await ctx.channel.send(f"Unbanned: {user.mention}")
     
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.guild)
     @has_permissions(manage_messages=True)
     async def mute(self, ctx, member: discord.Member, *, reason=None):
         """Mutes the specified user."""
@@ -54,6 +60,7 @@ class Mod(commands.Cog):
         await member.add_roles(mutedRole)
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.guild)
     @commands.has_permissions(manage_messages=True)
     async def unmute(self, ctx, member: discord.Member):
         """Unmutes a specified user."""
@@ -66,20 +73,24 @@ class Mod(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['clear'])
+    @commands.cooldown(2, 15, commands.BucketType.default)
     @has_permissions(manage_messages=True)
     async def purge(self, ctx, amount:int=None):
         """Purges/Clears a certain amount of messages"""
         amount = amount
         if amount == None:
-            amount == 1
-        if amount >= 101:
-            await ctx.send("Maximum purge limit is 100!")
+            amount = 1
+        if amount >= 501:
+            await ctx.send("Maximum purge limit is 500!")
             return
         await ctx.message.delete()
         await ctx.channel.purge(limit=amount)
-        await ctx.send(f"{amount} messages have been cleared")
+        msg = await ctx.send(f"{amount} messages have been cleared")
+        await asyncio.sleep(5)
+        await msg.delete()
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.guild)
     @has_permissions(manage_roles=True)
     async def addrole(self, ctx, member:discord.Member, role:discord.Role):
         """Add roles to a member"""
@@ -107,3 +118,4 @@ class Mod(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Mod(bot))
+  

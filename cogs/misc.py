@@ -9,13 +9,15 @@ class Misc(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.guild)
     async def ping(self, ctx: commands.Context):
         """Shows the bot ping"""
         start_time = time.time()
-        await ctx.send("Testing ping...")
+        msg = await ctx.send("Testing ping...")
         end_time = time.time()
         bot_ping = round(self.bot.latency * 1000)
         api_ping = round((end_time - start_time) * 1000)
+        await msg.delete()
         if bot_ping <= 100:
             bpsignal = "<:online:874181086312280064>"
         elif bot_ping >=101:
@@ -34,6 +36,7 @@ class Misc(commands.Cog):
         await ctx.send(embed = pingEm)
   
     @commands.command()
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def invite(self, ctx):
         """Shows the invite links for the bot"""
         embed=discord.Embed(title="Invite")
@@ -42,17 +45,21 @@ class Misc(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["server-info"])
+    @commands.cooldown(1, 60, commands.BucketType.guild)
     async def serverinfo(self, ctx):
         """Shows info about a guild!"""
+        serverinvite = await ctx.channel.create_invite(max_age = 600, unique = False, reason = "Used for Server Info command")
         embed = discord.Embed(title = 'Server Info', colour = discord.Colour.red())
         embed.add_field(name = "Server Name", value = f"{ctx.guild.name}", inline = True)
         embed.add_field(name = "Member Count", value = ctx.guild.member_count, inline = True)
-        embed.add_field(name = "Owner", value = ctx.guild.owner, inline = False)
+        embed.add_field(name = "Owner", value = ctx.guild.owner, inline = True)
+        embed.add_field(name = "Invite link", value = f"[Invite link]({serverinvite})")
         embed.add_field(name = "Server ID", value = ctx.guild.id, inline = True)
-        embed.set_footer(icon_url = ctx.author.avatar_url, text = f"Requested by {ctx.author.name}")
+        embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Requested by {ctx.author.name}")
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['userinfo'])
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def whois(self, ctx, member: discord.Member = None):
         """Show information about a specified user"""
         if member == None:
@@ -65,11 +72,12 @@ class Misc(commands.Cog):
         else:
             embed.add_field(name = "In this server?", value = "No", inline =False)
         embed.add_field(name = "Joined Discord" , value = member.created_at.strftime("%a, %#d %B %Y") , inline = False)
-        embed.set_thumbnail(url = member.avatar_url)
-        embed.set_footer(icon_url = ctx.author.avatar_url, text = f"Requested by {ctx.author.name}")
+        embed.set_thumbnail(url = member.avatar.url)
+        embed.set_footer(icon_url = ctx.author.avatar.url, text = f"Requested by {ctx.author.name}")
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def vote(self, ctx):
         """Shows the top.gg vote link for Chuck"""
         voteEm = discord.Embed(title = "Vote for Chuck", description = "", colour = discord.Colour.gold())
@@ -77,6 +85,7 @@ class Misc(commands.Cog):
         await ctx.send(embed = voteEm)
         
     @commands.command(aliases=["guildcount"])
+    @commands.cooldown(1, 30, commands.BucketType.guild)
     async def servercount(self, ctx):
         """Shows the amount of servers the bot is in"""
         await ctx.send( f"I'm in ***{len(self.bot.guilds)}*** servers!")

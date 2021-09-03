@@ -1,10 +1,11 @@
 import discord
-import os
 from discord.ext import commands
 from discord.ext.commands import has_permissions
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+import os
 import json
+#import traceback
 
 load_dotenv()
 
@@ -48,16 +49,32 @@ async def on_guild_remove(guild):
 #error-handling
 @bot.event
 async def on_command_error(ctx, error):
-    errorEm=discord.Embed(name="Error in command", description=error, colour=discord.Colour.green())
-    await ctx.send(embed=errorEm)
+    #error
+    embed = discord.Embed(title = "Error", description = error, colour = discord.Colour.green())
+    await ctx.send(embed = embed)
+    #traceback
+    #etype = type(error)
+    #trace = error.__traceback__
+    #lines = traceback.format_exception(etype,error, trace)
+    #traceback_text = ''.join(lines)
+    #errorEm=discord.Embed(Title="Error", description=traceback_text, colour=discord.Colour.green())
+    #await ctx.send(embed=errorEm)
 
-#Shows prefix to people who don't know it
 @bot.event
 async def on_message(message):
+    if message.author.bot == False:
+        try:
+            log_channel = bot.get_channel(882503983174930443)
+            logEm = discord.Embed(title = "Message", description = f"{message.author}")
+            logEm.add_field(name = f"In {message.guild.name}", value = f"{message.content}")
+            await log_channel.send(embed = logEm)
+        except:
+            pass
     if message.guild is None:
         return
     if bot.user.mentioned_in(message):
         await message.channel.send(f"The prefix is {await get_prefix(bot, message)}")
+        await bot.process_commands(message)
     else:
         await bot.process_commands(message)
     
@@ -73,7 +90,7 @@ async def prefix(ctx, prefix="c!"):
 
 class help(commands.HelpCommand):
     def get_command_signature(self, command):
-        return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.signature)
+        return '%s%s %s' % (self.context.clean_prefix, command.qualified_name, command.signature)
 
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", colour = discord.Colour.blurple())
@@ -104,7 +121,7 @@ class help(commands.HelpCommand):
 
 bot.help_command = help()
 
-initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner']
+initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner','cogs.nsfw']
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
