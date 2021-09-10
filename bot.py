@@ -5,17 +5,20 @@ from discord.ext.commands import has_permissions
 from dotenv import load_dotenv
 import os
 import json
-#import traceback
+import traceback
 
 load_dotenv()
 
 async def get_prefix(bot, message):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-    return prefixes[str(message.guild.id)]
+    if message.guild != None:
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        return prefixes.get(str(message.guild.id), "c!")
+    else:
+        return ("c!")
 
 TOKEN = os.getenv("token")
-bot = commands.Bot(command_prefix=(get_prefix), intents=discord.Intents.all(), case_insensitive=True,  description='Awesome multi-purpose and fun bot!')
+bot = commands.AutoShardedBot(command_prefix=(get_prefix), intents=discord.Intents.all(), case_insensitive=True,  description='Awesome multi-purpose and fun bot!', shard_count = 10)
 bot.remove_command("help")
 
 @bot.event
@@ -29,13 +32,26 @@ async def on_guild_join(guild):
             joinEm.set_footer(icon_url="https://images-ext-1.discordapp.net/external/2NTlKKViwT-O75ct7SeCkG_hSa5SsBYvw9csO1JEfwo/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/859996173943177226/19ec5346838e19dab0d715d5820f2b5a.webp", text="With love, PikaPi#6298")
         await channel.send(embed=joinEm)
     except:
-        print("Can't send the join_guild message!")
+        pass
     
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
     prefixes[str(guild.id)] = 'c!'
     with open('prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent = 4)
+
+#SLASH COMMANDS
+@bot.slash_command()
+@commands.guild_only()
+@commands.has_permissions(manage_nicknames = True)
+async def nickname(ctx, member: discord.Member, *, new_nick):
+    old_name = member.name
+    try:
+        await member.edit(nick = new_nick)
+    except Exception as e:
+        await ctx.send(e)
+        return
+    await ctx.respond(f"{old_name}'s nickname was set to {new_nick}!")
 
 @bot.event
 async def on_guild_remove(guild):
@@ -45,95 +61,138 @@ async def on_guild_remove(guild):
             prefixes.pop(str(guild.id))
     except:
         return
-        
-#error-handling
-@bot.event
-async def on_command_error(ctx, error):
-    #error
-    embed = discord.Embed(title = "Error", description = error, colour = discord.Colour.green())
-    await ctx.send(embed = embed)
-    #traceback
-    #etype = type(error)
-    #trace = error.__traceback__
-    #lines = traceback.format_exception(etype,error, trace)
-    #traceback_text = ''.join(lines)
-    #errorEm=discord.Embed(Title="Error", description=traceback_text, colour=discord.Colour.green())
-    #await ctx.send(embed=errorEm)
 
-@bot.event
-async def on_message(message):
-    if message.author.bot == False:
-        try:
-            log_channel = bot.get_channel(882503983174930443)
-            logEm = discord.Embed(title = "Message", description = f"{message.author}")
-            logEm.add_field(name = f"In {message.guild.name}", value = f"{message.content}")
-            await log_channel.send(embed = logEm)
-        except:
-            pass
-    if message.guild is None:
-        return
-    if bot.user.mentioned_in(message):
-        await message.channel.send(f"The prefix is {await get_prefix(bot, message)}")
-        await bot.process_commands(message)
-    else:
-        await bot.process_commands(message)
-    
-@bot.command()
-@has_permissions(administrator=True)
-async def prefix(ctx, prefix="c!"):
-    with open('prefixes.json', 'r') as f:
-        prefixes = json.load(f)
-    prefixes[str(ctx.guild.id)] = prefix
-    with open('prefixes.json', 'w') as f:
-        json.dump(prefixes, f, indent=4)
-    await ctx.send(f"The prefix for this server has been set to **{prefix}**")
+class HelpCommand(commands.HelpCommand):
+    def get_ending_note(self):
+        return "Use c!{0} [command] for more info on a command.".format(
+            self.invoked_with
+        )
 
-class help(commands.HelpCommand):
     def get_command_signature(self, command):
-        return '%s%s %s' % (self.context.clean_prefix, command.qualified_name, command.signature)
+        parent = command.full_parent_name
+        if len(command.aliases) > 0:
+            aliases = "|".join(command.aliases)
+            fmt = f"[{command.name}|{aliases}]"
+            if parent:
+                fmt = f"{parent}, {fmt}"
+            alias = fmt
+        else:
+            alias = command.name if not parent else f"{parent} {command.name}"
+        return f"{alias} {command.signature}"
 
     async def send_bot_help(self, mapping):
-        embed = discord.Embed(title="Help", colour = discord.Colour.blurple())
-        for cog, commands in mapping.items():
-            filtered = await self.filter_commands(commands, sort=True)
-            command_signatures = [self.get_command_signature(c) for c in filtered]
-            if command_signatures:
-                cog_name = getattr(cog, "qualified_name", "Extras")
-                embed.add_field(name=cog_name, value="\n".join(command_signatures), inline=True)
+        embed = discord.Embed(title="Chuck's Help Menu!", color=discord.Color.blurple())
+        description = self.context.bot.description
+        if description:
+            embed.description = description
 
-        channel = self.get_destination()
-        await channel.send(embed=embed)
+        for cog_, cmds in mapping.items():
+            name = "Other Commands" if cog_ is None else cog_.qualified_name
+            filtered = await self.filter_commands(cmds, sort=True)
+            if filtered:
+                value = "\u002C ".join(f"`{c.name}`" for c in cmds)
+                if cog_ and cog_.description:
+                    value = "{0}\n{1}".format(cog_.description, value)
 
-    async def send_command_help(self, command):
-        emb = discord.Embed(title=self.get_command_signature(command), colour = discord.Colour.red())
-        emb.add_field(name="Help", value=command.help)
-        alias = command.aliases
-        if alias:
-            emb.add_field(name="Aliases", value=", ".join(alias), inline=False)
+                embed.add_field(name=name, value=value, inline=False)
 
-        channel = self.get_destination()
-        await channel.send(embed=emb)
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
 
-    async def on_help_command_error(self, ctx, error):
-        if isinstance(error, commands.BadArgument):
-            embed = discord.Embed(title="Error", description=str(error))
-            await ctx.send(embed=embed)
+    async def send_cog_help(self, cog_):
+        embed = discord.Embed(title="{0.qualified_name} Commands".format(cog_))
+        if cog_.description:
+            embed.description = cog_.description
 
-bot.help_command = help()
+        filtered = await self.filter_commands(cog_.get_commands(), sort=True)
+        for command in filtered:
+            embed.add_field(
+                name=self.get_command_signature(command),
+                value=command.short_doc or "...",
+                inline=False,
+            )
 
-initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner','cogs.nsfw']
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
+
+    async def send_group_help(self, group):
+        embed = discord.Embed(title=group.qualified_name)
+        if group.help:
+            embed.description = group.help
+
+        if isinstance(group, commands.Group):
+            filtered = await self.filter_commands(group.commands, sort=True)
+            for command in filtered:
+                embed.add_field(
+                    name=self.get_command_signature(command),
+                    value=command.short_doc or "...",
+                    inline=False,
+                )
+
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
+
+
+    send_command_help = send_group_help
+
+bot.help_command = HelpCommand()
+
+initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner','cogs.nsfw','cogs.giveaways']
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
-        
-@bot.command()
-@commands.is_owner()
-async def updatestatus(ctx, *, newstatus = None):
-    if newstatus == None:
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"over {len(bot.guilds)} servers"))
-        await ctx.send(f"Reset status to ```Watching over {len(bot.guilds)} guilds```")
-    else:
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"{newstatus}"))
-        await ctx.send(f"Set status to {newstatus}")
-    
+
+@bot.slash_command(guild_ids = [860767299236921344])
+async def load(ctx, *, name: str):
+    if ctx.author.id != 859996173943177226:
+        await ctx.respond("Only my owner can use this command ;-;")
+        return
+    try:
+        bot.load_extension(f"cogs.{name}")
+    except Exception as e:
+        await ctx.send(e)
+    await ctx.send(f'"**{name}**" Cog loaded!')
+
+@bot.slash_command(guild_ids = [860767299236921344])
+async def reload(ctx, *, name: str):
+    if ctx.author.id != 859996173943177226:
+        await ctx.respond("Only my owner can use this command ;-;")
+        return
+    try:
+        bot.reload_extension(f"cogs.{name}")
+    except Exception as e:
+        await ctx.send(e)
+    await ctx.respond(f'"**{name}**" Cog reloaded!')
+
+@bot.slash_command(guild_ids = [860767299236921344])
+async def unload(ctx, *, name: str):
+    if ctx.author.id != 859996173943177226:
+        await ctx.respond("Only my owner can use this command ;-;")
+    try:
+        bot.unload_extension(f"cogs.{name}")
+    except Exception as e:
+        await ctx.send(e)
+    await ctx.send(f'"**{name}**" Cog unloaded!')
+
+@bot.slash_command()
+async def ping(ctx):
+    """🏓Shows Chuck's ping"""
+    bot_ping = round(bot.latency * 1000)
+    pingEm = discord.Embed(title="Pong!", description="", colour = discord.Color.blurple())
+    pingEm.add_field(name="Bot Ping", value=f"🏓 {bot_ping}ms", inline=False)
+    await ctx.respond(embed = pingEm)
+
+@bot.slash_command(guild_ids = [860767299236921344, 885465324206579712])
+async def unbanall(ctx):
+    if ctx.author.id != 859996173943177226:
+        await ctx.respond("Only my owner can use this command ;-;")
+        return
+    banned_users = await ctx.guild.bans()
+    try:
+        for ban_entry in banned_users:
+            await ctx.guild.unban(ban_entry.user)
+        await ctx.respond(f"Unbaned everyone!")
+    except Exception as e:
+        await ctx.respond(f"{e}")
+
 bot.run(TOKEN)

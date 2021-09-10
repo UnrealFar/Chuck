@@ -9,6 +9,27 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
+        if message.author.bot == False:
+            logChannel = discord.utils.get(message.guild.text_channels, name = "log")
+            logEm = discord.Embed(title = "Message deleted", description = f"In {message.channel.mention}")
+            logEm.add_field(name = f"Message sent by {message.author}", value = f"{message.content}")
+            logEm.set_thumbnail(url = message.author.display_avatar.url)
+            if logChannel:
+                try:
+                    await logChannel.send(embed = logEm)
+                except:
+                    pass
+            elif not logChannel:
+                try:
+                    overwrites = {message.guild.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False)}
+                    logChannel = await message.guild.create_text_channel("log", overwrites=overwrites)
+                    logChannel = discord.utils.get(message.guild.text_channels, name = "log")
+                    await logChannel.send(embed = logEm)
+                except:
+                    pass
+
     @commands.command()
     @commands.cooldown(1, 3, commands.BucketType.channel)
     async def say(self, ctx, *, message=None):

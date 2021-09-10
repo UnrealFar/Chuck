@@ -83,11 +83,17 @@ class Mod(commands.Cog):
         if amount >= 501:
             await ctx.send("Maximum purge limit is 500!")
             return
-        await ctx.message.delete()
-        await ctx.channel.purge(limit=amount)
-        msg = await ctx.send(f"{amount} messages have been cleared")
+        try:
+            await ctx.message.delete()
+        except:
+            pass
+        deleted = await ctx.channel.purge(limit=amount)
+        msg = await ctx.send(f"{len(deleted)} messages have been cleared")
         await asyncio.sleep(5)
-        await msg.delete()
+        try:
+            await msg.delete()
+        except:
+            pass
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.guild)
@@ -111,11 +117,27 @@ class Mod(commands.Cog):
         if nuke_channel is not None:
             new_channel = await nuke_channel.clone(reason="Has been Nuked!")
             await nuke_channel.delete()
-            await new_channel.send("THIS CHANNEL HAS BEEN NUKED!")
-            await new_channel.send("https://cdn.discordapp.com/attachments/832980836659494944/833749914336493638/boom.gif")
+            nukeEm = discord.Embed(title = "THIS CHANNEL HAS BEEN NUKED!")
+            nukeEm.set_image(url = "https://c.tenor.com/Ms3zVqn7qcUAAAAd/nuke-press-the-button.gif")
+            nukeEm.set_footer(text = f"Nuked by {ctx.author}", icon_url = f"{ctx.author.display_avatar.url}")
+            await new_channel.send(embed = nukeEm)
         else:
             await ctx.send(f"No channel named {channel.name} was found!")
 
+    @commands.command()
+    @commands.guild_only()
+    async def prefix(self, ctx, prefix = None):
+        if prefix == None:
+            await ctx.send("The prefix needs some value ;-;")
+            return
+        if ctx.author.has_permissions(administrator = True):
+            with open('prefixes.json', 'r') as f:
+                prefixes = json.load(f)
+            prefixes[str(ctx.guild.id)] = prefix
+            with open('prefixes.json', 'w') as f:
+                json.dump(prefixes, f, indent=4)
+            await ctx.send(f"The prefix for this server has been set to **{prefix}**")
+
 def setup(bot):
     bot.add_cog(Mod(bot))
-  
+    

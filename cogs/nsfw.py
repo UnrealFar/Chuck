@@ -16,13 +16,18 @@ class Nsfw(commands.Cog):
     async def nsfw(self, ctx):
         embed = discord.Embed(title="Here you go!", colour = discord.Colour.red())  
         async with aiohttp.ClientSession() as cs:
-            links = ['https://www.reddit.com/r/nsfw/new.json?sort=hot', 'https://www.reddit.com/r/NSFW_GIF/new.json?sort=hot']
-            link = random.choice(links)
+            link = 'https://www.reddit.com/r/nsfw/new.json?sort=hot'
             async with cs.get(link) as r:
                 res = await r.json()
                 embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
                 embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar.url)
                 await ctx.send(embed=embed)
+    @nsfw.error
+    async def nsfw_error(self, ctx, error):
+        if isinstance(error, commands.NSFWChannelRequired):
+            await ctx.send("This command can only be excecuted in an NSFW channel!")
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("Take a chill mate! You're on a cooldown for this command!")
                 
     @commands.command(pass_context=True)
     @commands.is_nsfw()
@@ -39,14 +44,24 @@ class Nsfw(commands.Cog):
                 embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.display_avatar.url)
                 await ctx.send(embed = embed)
 
+    @boobs.error
+    async def boobs_error(self, ctx, error):
+        if isinstance(error, commands.NSFWChannelRequired):
+            await ctx.send("This command can only be excecuted in an NSFW channel!")
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("Chill mate! You're on a cooldown for this command!")
+
     @commands.command(pass_context=True)
-    @commands.has_permissions(administrator=True)
     @commands.is_nsfw()
     @commands.cooldown(1, 30, commands.BucketType.guild)
+    @commands.guild_only()
     async def autonsfw(self, ctx):
         await ctx.send("Auto NSFW has been enabled in this channel")
         while True:
             async with aiohttp.ClientSession() as session:
+                if ctx.channel.is_nsfw() == False:
+                    await ctx.send("The channel has to be an NSFW channel for this to work!")
+                    return
                 search = [f"http://api.oboobs.ru/boobs/{random.randint(0, 10394)}", f"http://api.obutts.ru/butts/{random.randint(0, 4378)}"]
                 search = random.choice(search)
                 async with session.get(search) as resp:
@@ -58,6 +73,13 @@ class Nsfw(commands.Cog):
                     embed.set_footer(text = "From the Hidden API")
                     await ctx.send(embed = embed)
                     await asyncio.sleep(10)
+
+    @autonsfw.error
+    async def autonsfw_error(self, ctx, error):
+        if isinstance(error, commands.NSFWChannelRequired):
+            await ctx.send("This command can only be excecuted in an NSFW channel!")
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send("Chill mate! You're on a cooldown for this command!")
 
 def setup(bot):
     bot.add_cog(Nsfw(bot))
