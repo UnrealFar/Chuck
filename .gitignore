@@ -1,4 +1,4 @@
 *.json
 *.replit
 *.lock
-.toml
+*.toml
