@@ -1,4 +1,4 @@
-amounts.json
-prefixes.json
-stats.json
+*.json
 *.replit
+*.lock
+.toml
