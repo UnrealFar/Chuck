@@ -82,7 +82,10 @@ class Misc(commands.Cog):
         embed.add_field(name = "Server Name", value = f"{ctx.guild.name}", inline = True)
         embed.add_field(name = "Member Count", value = ctx.guild.member_count, inline = True)
         embed.add_field(name = "Owner", value = ctx.guild.owner, inline = True)
-        embed.add_field(name = "Invite link", value = f"[Invite link]({serverinvite})")
+        try:
+            embed.add_field(name = "Invite link", value = f"[Invite link]({serverinvite})")
+        except:
+            pass
         embed.add_field(name = "Server ID", value = ctx.guild.id, inline = True)
         embed.set_footer(icon_url = ctx.author.display_avatar.url, text = f"Requested by {ctx.author.name}")
         await ctx.send(embed=embed)

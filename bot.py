@@ -142,55 +142,50 @@ if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
 
-@bot.message_command()
-@bot.slash_command(guild_ids = [860767299236921344])
-async def load(ctx, *, name: str):
+@bot.slash_command()
+async def load(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.respond("Only my owner can use this command ;-;")
         return
     try:
-        bot.load_extension(f"cogs.{name}")
-        await ctx.send(f'"**{name}**" Cog loaded!')
+        bot.load_extension(f"cogs.{cogname}")
+        await ctx.send(f'"**{cogname}**" Cog loaded!')
     except Exception as e:
         await ctx.send(e)
 
-@bot.message_command()
-@bot.slash_command(guild_ids = [860767299236921344])
-async def reload(ctx, *, name: str):
+@bot.slash_command()
+async def reload(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.send("Only my owner can use this command ;-;")
         return
     try:
-        bot.reload_extension(f"cogs.{name}")
-        await ctx.send(f'"**{name}**" Cog reloaded!')
+        bot.reload_extension(f"cogs.{cogname}")
+        await ctx.send(f'"**{cogname}**" Cog reloaded!')
     except Exception as e:
         await ctx.send(e)
 
-@bot.message_command()
-@bot.slash_command(guild_ids = [860767299236921344])
-async def unload(ctx, *, name: str):
+@bot.slash_command()
+async def unload(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.send("Only my owner can use this command ;-;")
     try:
-        bot.unload_extension(f"cogs.{name}")
-        await ctx.send(f'"**{name}**" Cog unloaded!')
+        bot.unload_extension(f"cogs.{cogname}")
+        await ctx.send(f'"**{cogname}**" Cog unloaded!')
     except Exception as e:
         await ctx.send(e)
 
-@bot.message_command()
-@bot.slash_command()
-async def ping(ctx):
+@bot.slash_command(name = "ping")
+async def slashping(ctx):
     """🏓Shows Chuck's ping"""
     bot_ping = round(bot.latency * 1000)
     pingEm = discord.Embed(title="Pong!", description="", colour = discord.Color.blurple())
     pingEm.add_field(name="Bot Ping", value=f"🏓 {bot_ping}ms", inline=False)
     await ctx.send(embed = pingEm)
 
-@bot.message_command()
-@bot.slash_command()
+@bot.slash_command(name = "unbanall")
 async def unbanall(ctx):
-    if ctx.author.id != 859996173943177226:
-        await ctx.respond("Only my owner can use this command ;-;")
+    if ctx.author != ctx.guild.owner:
+        await ctx.respond("Only the guild owner can use this command ;-;")
         return
     banned_users = await ctx.guild.bans()
     try:

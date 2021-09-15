@@ -60,7 +60,7 @@ class Giveaways(commands.Cog):
         
         new_msg = await channel.fetch_message(giveaway_msg.id)
         users = await new_msg.reactions[0].users().flatten()
-        
+        users.pop(users.index(self.bot.user))
         winner = random.choice(users)
         await channel.send(f"Congratulations {winner.mention}! You won **{prize}**")
 
