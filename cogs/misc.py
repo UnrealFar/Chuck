@@ -68,27 +68,32 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.guild)
     async def invite(self, ctx):
         """Shows the invite links for the bot"""
-        embed=discord.Embed(title="Invite")
-        embed.add_field(name="Invite me to your server", value="[Bot Invite link](https://top.gg/bot/864785515978031115/invite)", inline=False)
-        embed.add_field(name="Join the support server", value="[Server link](https://discord.gg/4RdYvsE7Jy)")
-        await ctx.send(embed=embed)
+        embed=discord.Embed(title="Invite Links!", colour = discord.Colour.gold())
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label = 'Invite me to your server!', url = 'https://top.gg/bot/864785515978031115/vote', style = discord.ButtonStyle.url))
+        view.add_item(discord.ui.Button(label = 'Join the support server!', url = 'https://discord.gg/4RdYvsE7Jy', style = discord.ButtonStyle.url))
+        await ctx.send(embed = embed, view = view)
 
     @commands.command(aliases=["server-info"])
     @commands.cooldown(1, 60, commands.BucketType.guild)
     async def serverinfo(self, ctx):
         """Shows info about a guild!"""
-        serverinvite = await ctx.channel.create_invite(max_age = 600, unique = False, reason = "Used for Server Info command")
         embed = discord.Embed(title = 'Server Info', colour = discord.Colour.red())
         embed.add_field(name = "Server Name", value = f"{ctx.guild.name}", inline = True)
         embed.add_field(name = "Member Count", value = ctx.guild.member_count, inline = True)
         embed.add_field(name = "Owner", value = ctx.guild.owner, inline = True)
         try:
-            embed.add_field(name = "Invite link", value = f"[Invite link]({serverinvite})")
+            serverinvite = await ctx.channel.create_invite(max_age = 600, unique = False, reason = "Used for Server Info command")
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(label = 'Server Invite', url = f"{serverinvite}", style = discord.ButtonStyle.url))
         except:
             pass
         embed.add_field(name = "Server ID", value = ctx.guild.id, inline = True)
         embed.set_footer(icon_url = ctx.author.display_avatar.url, text = f"Requested by {ctx.author.name}")
-        await ctx.send(embed=embed)
+        if not serverinvite:
+            await ctx.send(embed = embed)
+        else:
+            await ctx.send(embed = embed, view = view)
 
     @commands.command(aliases=['userinfo'])
     @commands.cooldown(1, 10, commands.BucketType.user)
@@ -109,12 +114,14 @@ class Misc(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @commands.cooldown(1, 10, commands.BucketType.guild)
     async def vote(self, ctx):
         """Shows the top.gg vote link for Chuck"""
-        voteEm = discord.Embed(title = "Vote for Chuck", description = "", colour = discord.Colour.gold())
-        voteEm.add_field(name = "Vote on Top.gg", value = "[Vote](https://top.gg/bot/864785515978031115/vote)")
-        await ctx.send(embed = voteEm)
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(label = 'Vote on Top.GG', url = 'https://top.gg/bot/864785515978031115/vote', style = discord.ButtonStyle.url))
+        view.add_item(discord.ui.Button(label = 'Vote on Discord Boats', url = 'https://discord.boats/bot/864785515978031115/vote', style = discord.ButtonStyle.url))
+        view.add_item(discord.ui.Button(label = 'Vote on DisBotList', url = 'https://disbotlist.xyz/bot/864785515978031115/vote', style = discord.ButtonStyle.url))
+        voteEm = discord.Embed(title = "Vote for Chuck!", description = "Vote rewards coming soon!", colour = discord.Colour.red())
+        await ctx.send(embed = voteEm, view = view)
         
     @commands.command(aliases=["guildcount"])
     @commands.cooldown(1, 30, commands.BucketType.guild)
