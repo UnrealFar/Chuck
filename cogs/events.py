@@ -36,7 +36,10 @@ class Events(commands.Cog):
             pass
         welcomeEm.timestamp = datetime.datetime.utcnow()
         if channel:
-            await channel.send(embed = welcomeEm)
+            try:
+                await channel.send(embed = welcomeEm)
+            except:
+                pass
         elif not channel:
             try:
                 overwrites = {member.guild.default_role: discord.PermissionOverwrite(read_messages=True, send_messages=False)}
