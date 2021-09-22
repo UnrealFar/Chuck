@@ -1,7 +1,7 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks, ipc
 from discord.ext.commands import has_permissions
-
+import topgg
 from dotenv import load_dotenv
 import os
 import json
@@ -17,9 +17,49 @@ async def get_prefix(bot, message):
     else:
         return ("c!")
 
+class MyBot(commands.AutoShardedBot):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.ipc = ipc.Server(self, secret_key = "pass1234")
+
 TOKEN = os.getenv("token")
-bot = commands.AutoShardedBot(command_prefix=(get_prefix), intents=discord.Intents.all(), case_insensitive=True,  description='Awesome multi-purpose and fun bot!', shard_count = 10)
+bot = MyBot(command_prefix=(get_prefix), intents=discord.Intents.all(), case_insensitive=True,  description='Awesome multi-purpose and fun bot!', shard_count = 1)
+dbl_token = os.getenv("topggtoken")
+bot.topggpy = topgg.DBLClient(bot, dbl_token, autopost=True, post_shard_count=True)
 bot.remove_command("help")
+
+@bot.event
+async def on_autopost_success():
+    channel = bot.get_channel(887939435210104862)
+    msg = await channel.fetch_message(890070751670075412)
+    statusEm = discord.Embed(title = "Chuck's status", description = f"Chuck is watching ({bot.topggpy.guild_count}) servers with a shard count of, shard count ({bot.shard_count})")
+    await msg.edit(content = None)
+    await msg.edit(embed = statusEm)
+    await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name=f"over {len(bot.guilds)} servers"))
+
+@bot.ipc.route()
+async def get_guild_count(data):
+    return len(bot.guilds)
+
+@bot.ipc.route()
+async def get_guild_ids(data):
+    final = []
+    for guild in bot.guilds:
+        final.append(guild.id)
+    return final
+
+@bot.ipc.route()
+async def get_guild(data):
+    guild = bot.get_guild(data.guild_id)
+    if guild is None:
+        return None
+
+    guild_data = {
+        "name": guild.name,
+        "id": guild.id,
+        "prefix" : "c!"
+    }
+    return guild_data
 
 @bot.event
 async def on_guild_join(guild):
@@ -137,12 +177,12 @@ class HelpCommand(commands.HelpCommand):
 
 bot.help_command = HelpCommand()
 
-initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner','cogs.nsfw','cogs.giveaways', 'cogs.levels']
+initial_extensions = ['cogs.misc','cogs.mod','cogs.fun','cogs.events','cogs.economy','cogs.owner','cogs.nsfw','cogs.giveaways','cogs.ticket']
 if __name__ == '__main__':
     for extension in initial_extensions:
         bot.load_extension(extension)
 
-@bot.slash_command()
+@bot.slash_command(guild_ids = [860767299236921344, 873181946786762804])
 async def load(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.respond("Only my owner can use this command ;-;")
@@ -153,7 +193,7 @@ async def load(ctx, *, cogname: str):
     except Exception as e:
         await ctx.send(e)
 
-@bot.slash_command()
+@bot.slash_command(guild_ids = [860767299236921344, 873181946786762804])
 async def reload(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.send("Only my owner can use this command ;-;")
@@ -164,7 +204,7 @@ async def reload(ctx, *, cogname: str):
     except Exception as e:
         await ctx.send(e)
 
-@bot.slash_command()
+@bot.slash_command(guild_ids = [860767299236921344, 873181946786762804])
 async def unload(ctx, *, cogname: str):
     if ctx.author.id != 859996173943177226:
         await ctx.send("Only my owner can use this command ;-;")
@@ -195,4 +235,5 @@ async def unbanall(ctx):
     except Exception as e:
         await ctx.send(f"{e}")
 
+bot.ipc.start()
 bot.run(TOKEN)
