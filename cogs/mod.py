@@ -1,9 +1,24 @@
 from discord.ext import commands
 from discord.ext.commands import has_permissions
 import discord
-
 import asyncio
 import json
+
+async def get_prefix(bot, message):
+    if message.guild != None:
+        with open('prefixes.json', 'r') as f:
+            prefixes = json.load(f)
+        return prefixes.get(str(message.guild.id), "c!")
+    else:
+        return ("c!")
+
+class DurationConverter(commands.Converter):
+    async def convert(self, ctx, argument):
+        amount = argument[:-1]
+        unit = argument[-1]
+        if amount.isdigit() and unit in ['s', 'm', 'h', 'd']:
+            return(int(amount), unit)
+        await ctx.send(commands.BadArgument(message = "Not a valid duration!"))
 
 class Mod(commands.Cog):
     """Commands for moderators"""
@@ -14,10 +29,31 @@ class Mod(commands.Cog):
     @commands.command(name="kick")
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @has_permissions(kick_members=True)
-    async def kick(self, ctx, member:discord.Member, *,reason=None):
+    async def kick(self, ctx, member: commands.MemberConverter, *,reason=None):
         """Kicks a member from the guild"""
         await member.kick(reason=reason)
         await ctx.send(f"{member.mention} has been kicked for: {reason}")
+
+    @commands.command()
+    @has_permissions(ban_members = True)
+    async def tempban(self, ctx, member: commands.MemberConverter, duration: DurationConverter):
+        """Temporarily bans a user from the guild for a given time!"""
+        multiplier = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+        amount, unit = duration
+        await ctx.guild.ban(member)
+        await ctx.reply(f"**{member}** was banned for **{amount}{unit}** by **{ctx.author}**")
+        try:
+            await member.send(f"You were temporarily banned from **{ctx.guild.name}** for **{amount}{unit}**")
+        except:
+            pass
+        asyncio.sleep(amount * multiplier[unit])
+        await ctx.guild.unban(member)
+        await ctx.send(f"**{member}** who was banned through the tempban by **{ctx.author}** was unbanned as the timer is over!")
+        try:
+            inv = await ctx.channel.creat_invite(reason = f"{ctx.author} was unbanned as they were tempbanned!", unique = False)
+            await member.send(f"Yeehaw! You were unbanned from {ctx.guild.name} as your tempban timer is out!\nYou can join back with {inv}")
+        except:
+            pass
 
     @commands.command(name="ban")
     @commands.cooldown(2, 15, commands.BucketType.guild)
@@ -128,9 +164,9 @@ class Mod(commands.Cog):
     @commands.guild_only()
     async def prefix(self, ctx, prefix = None):
         if prefix == None:
-            await ctx.send("The prefix needs some value ;-;")
+            await ctx.send(f"The prefix for this guild is {await get_prefix()}")
             return
-        if ctx.author.has_permissions(administrator = True):
+        if ctx.author.guild_permissions.administrator:
             with open('prefixes.json', 'r') as f:
                 prefixes = json.load(f)
             prefixes[str(ctx.guild.id)] = prefix
