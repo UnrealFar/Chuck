@@ -2,6 +2,13 @@ from discord.ext import commands
 import discord
 import random
 import asyncio
+import os
+from prsaw import RandomStuff
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("rand_api_key")
+rs = RandomStuff(async_mode = True, api_key = api_key)
 
 class Fun(commands.Cog):
     """Fun to use commands!"""
@@ -81,6 +88,12 @@ class Fun(commands.Cog):
         em.add_field(name="Answer", value=f"{random.choice(responses)}")
         em.set_footer(icon_url = ctx.author.avatar.url, text = f"Requested by {ctx.author.name}")
         await ctx.send(embed=em)
+
+    @commands.command()
+    async def ai(self, ctx, *, args):
+        response = await rs.get_ai_response(f"{args}")
+        response = response[0]['message']
+        await ctx.reply(response)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
