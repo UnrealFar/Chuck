@@ -1,0 +1,9 @@
+*.sqlite
+*.env
+*.pyc
+__pycache__/
+venv/
+*.replit
+*.nix
+*.lock
+*.toml

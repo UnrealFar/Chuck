@@ -1,0 +1,9 @@
+discord.py
+jishaku
+aiosqlite
+PyNaCl
+orjson
+aiodns
+Brotli
+cchardet
+ffmpeg
