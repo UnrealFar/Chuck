@@ -70,6 +70,7 @@ class Unreal(commands.AutoShardedBot):
             await self.load_extension(cog)
 
         await self.tree.sync()
+        utils.update_readme_commands()
 
         self.app = app.app
         app.app.bot = self

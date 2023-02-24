@@ -137,7 +137,7 @@ class WelcomeCog(commands.Cog, name = "Welcome"):
             "description": "Set up welcoming system for your server!",
             "cog": "welcome",
             "syntax": "/welcome setup",
-            "usage": "/welcome setup"
+            "example": "/welcome setup"
         }
     )
     @welc.command(name = "setup")
