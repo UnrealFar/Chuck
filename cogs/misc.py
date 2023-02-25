@@ -13,15 +13,17 @@ class MiscCog(commands.Cog):
     def __init__(self, bot: Unreal):
         self.name = "Misc"
         self.bot: Unreal = bot
+        self.sc = None
+        self.smsg = None
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        sc = await self.bot.fetch_channel(887939435210104862)
-        self.smsg = await sc.fetch_message(890070751670075412)
+    async def cog_load(self):
         self.update_bot_stats.start()
 
     @tasks.loop(minutes=30)
     async def update_bot_stats(self):
+        await self.bot.wait_until_ready()
+        self.sc = sc = self.sc or await self.bot.fetch_channel(887939435210104862)
+        self.smsg = self.smsg or await sc.fetch_message(890070751670075412)
         gs = len(self.bot.guilds)
         ss = len(self.bot.shards)
         us = len(self.bot.users)

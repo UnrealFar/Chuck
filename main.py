@@ -3,7 +3,7 @@ import os
 try:
     import bot
 except ModuleNotFoundError:
-    os.system("python -m pip install -r requirements.txt")
+    os.system("python3.9 -m pip install -r requirements.txt")
 finally:
     import bot
     import discord

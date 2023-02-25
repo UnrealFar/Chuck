@@ -67,13 +67,13 @@ class Unreal(commands.AutoShardedBot):
             "cogs.misc",
             "cogs.economy",
             "cogs.welcome",
+            "cogs.help", # always load the help cog last :)
         )
 
         for cog in cogs:
             await self.load_extension(cog)
 
         await self.tree.sync()
-        await self.run_async(utils.update_readme_commands)
 
         self.app = app.app
         app.app.bot = self
@@ -87,6 +87,7 @@ class Unreal(commands.AutoShardedBot):
         dt = datetime.datetime.now()
         print("Current time and date are", dt.strftime("%-Hh:%-Mm:%-Ss and %-d/%-m/%Y"))
         self.vote_channel = await self.fetch_channel(880294980076326933)
+        await self.run_async(utils.update_readme_commands)
 
     async def on_guild_join(self, guild):
         try:

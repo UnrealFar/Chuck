@@ -10,7 +10,18 @@ a_check = os.environ["dbl_auth"]
 
 @routes.get("/")
 async def home(request):
-    return web.Response(text="Hello, world!")
+    HOME_PAGE_HTML = """
+    <head>
+    <title>Chuck | Home</title>
+    </head>
+    <body>
+    <center>
+        <h1>Hello, World!</h1>
+        <a href="https://statuspage.freshping.io/65327-Chuck/">Check Status Page</a>
+    </center>
+    </body>
+    """
+    return web.Response(body=HOME_PAGE_HTML, content_type="text/html")
 
 
 @routes.get("/commands")

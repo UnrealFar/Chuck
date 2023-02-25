@@ -3,13 +3,13 @@
   <img alt="Our Bot!" src="https://cdn.discordapp.com/emojis/861955812854202378.png">
 </p>
 
-## About ツ>
+## About Chuck
 - Chuck is a bot developed by [Farrr](https://github.com/unrealfar), using [Discord.py](https://discord.gg/dpy) library in Python!
 - Chuck was developed in order to make Discord a lot more fun, with various features unique features.
-- Chuck is as of now in v3.0.0
+- As of now, Chuck is in v3.0.0b
 - We hope to add a lot more features to the bot in the upcoming future!
 - Stay safe!
-- Chuck has completely migrated to slashed commands.
+- Chuck has completely migrated to slashecommands.
 
 ## Commands:
 ### Tags
