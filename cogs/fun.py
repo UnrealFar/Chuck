@@ -8,6 +8,7 @@ from bot import Unreal
 
 
 class Fun(commands.Cog):
+    name = "Fun"
     bot: Unreal
     session: aiohttp.ClientSession
 
@@ -26,16 +27,7 @@ class Fun(commands.Cog):
         name = "get", description = "Get data from different APIs"
     )
 
-    @get_commands.command(name="getrock")
-    @app_commands.help_desc(
-        {
-            "name": "getrock",
-            "description": "Get a rock from the Rock API(by Conos). Search for one or get a random rock.",
-            "cog": "fun",
-            "syntax": "/getrock <rock>",
-            "example": "/getrock glow rock",
-        }
-    )
+    @get_commands.command(name="rock", example = "/get rock glow rock")
     @app_commands.describe(query="The rock to search for!")
     async def get_rock(
         self,
@@ -57,16 +49,7 @@ class Fun(commands.Cog):
             em.set_footer(text="With ❤️, Rock API")
             await i.edit_original_message(embed=em)
 
-    @get_commands.command(name="getplane")
-    @app_commands.help_desc(
-        {
-            "name": "getplane",
-            "description": "Get a random plane from the Plane API(by Lexionas)",
-            "cog": "fun",
-            "syntax": "/getplane",
-            "example": "/syntax",
-        }
-    )
+    @get_commands.command(name="plane")
     async def get_plane(self, i: discord.Interaction):
         """Get planes from the plane api!"""
         await i.response.defer()

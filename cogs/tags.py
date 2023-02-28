@@ -97,6 +97,7 @@ class TEditM(ui.Modal, title="Edit a tag"):
 
 
 class Tags(commands.Cog):
+    name = "Tags"
     db: aiosqlite.Connection
 
     tag_group = app_commands.Group(
@@ -115,19 +116,10 @@ class Tags(commands.Cog):
         ):
             await db.commit()
 
-    @tag_group.command(name="view")
+    @tag_group.command(name="view", example='/tag view chuck')
     @app_commands.describe(
         name="The name of tag to search for!",
         raw="Whether the bot should send the raw content of the tag!",
-    )
-    @app_commands.help_desc(
-        {
-            "cog": "tags",
-            "name": "view",
-            "description": "View a specified tag",
-            "syntax": "/tag view [name]",
-            "example": "/tag view Chuck",
-        }
     )
     async def tcmd(
         self,
@@ -153,15 +145,6 @@ class Tags(commands.Cog):
             )
 
     @tag_group.command(name="list")
-    @app_commands.help_desc(
-        {
-            "cog": "tags",
-            "name": "list",
-            "description": "View all tags in the current server.",
-            "syntax": "/tag list",
-            "example": "/tag list",
-        }
-    )
     async def tlist(
         self,
         i: discord.Interaction,
@@ -194,15 +177,6 @@ class Tags(commands.Cog):
         await i.response.send_message(embed=emb, view=embp)
 
     @tag_group.command(name="create")
-    @app_commands.help_desc(
-        {
-            "cog": "tags",
-            "name": "create",
-            "description": "Create a tag in the server using ui interface.",
-            "syntax": "/tag create",
-            "example": "/tag create",
-        }
-    )
     async def tcreate(
         self,
         i: discord.Interaction,
@@ -215,15 +189,6 @@ class Tags(commands.Cog):
         await i.response.send_modal(TCreateM(self, i.guild_id, i.user.id))
 
     @tag_group.command(name="edit")
-    @app_commands.help_desc(
-        {
-            "cog": "tags",
-            "name": "edit",
-            "description": "Edit a tag with ui interface.",
-            "syntax": "/tag edit",
-            "example": "/tag edit",
-        }
-    )
     async def tedit(
         self,
         i: discord.Interaction,
@@ -235,17 +200,8 @@ class Tags(commands.Cog):
             )
         await i.response.send_modal(TEditM(self, i.guild_id, i.user.id))
 
-    @tag_group.command(name="delete")
+    @tag_group.command(name="delete", example='/delete tag chuck')
     @app_commands.describe(name="Name of tag to delete.")
-    @app_commands.help_desc(
-        {
-            "cog": "tags",
-            "name": "delete",
-            "description": "Delete a tag.",
-            "syntax": "/tag delete [name]",
-            "example": "/tag delete Chuck",
-        }
-    )
     async def tdelete(self, i: discord.Interaction, name: str):
         """Delete a tag"""
         name = name.lower()

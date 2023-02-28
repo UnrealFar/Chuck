@@ -116,13 +116,13 @@ class Player:
 
 
 class Music(commands.Cog):
+    name = "Music"
     bot: Unreal
     db: aiosqlite.Connection
 
     def __init__(self, bot: Unreal) -> None:
         self.bot = bot
         self.ready = False
-        self.name = "Music"
         self.players = {}
 
     async def cog_load(self) -> None:

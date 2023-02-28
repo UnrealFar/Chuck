@@ -8,10 +8,10 @@ from bot import Unreal
 
 
 class MiscCog(commands.Cog):
+    name = "Misc"
     bot: Unreal
 
     def __init__(self, bot: Unreal):
-        self.name = "Misc"
         self.bot: Unreal = bot
         self.sc = None
         self.smsg = None
@@ -41,6 +41,8 @@ class MiscCog(commands.Cog):
 
     @app_commands.command(name="stats")
     async def stats_cmd(self, i: discord.Interaction):
+        """Show Chuck's stats. Also shows server stats if the bot is in a guild.
+        """
         embed = discord.Embed(
             title = "Chuck's stats", colour = 0xF47FFF,
         )

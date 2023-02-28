@@ -11,10 +11,38 @@ def help_desc(info: typing.Dict):
         HELP_INFO[info.pop("cog")][info.pop("name")] = info
     else:
         HELP_INFO[info.pop("cog")] = {info.pop("name"): info}
-    return lambda func: func
 
+__appcmdfunc = app_commands.command
+__grpappcmdfunc = app_commands.Group.command
 
-app_commands.help_desc = help_desc
+def app_command(*args, **kwargs):
+    def wrapper(func) -> app_commands.AppCommand:
+        info = {}
+        example = kwargs.pop('example', None)
+        if kwargs.pop("group", False):
+            ret = __grpappcmdfunc(*args, **kwargs)(func)
+        else:
+            ret = __appcmdfunc(*args, **kwargs)(func)
+        info['cog'] = func.__qualname__.split('.')[0].lower().replace('cog', '')
+        info['description'] = ret.description
+        params = ''
+        for param in ret.parameters:
+            default = '=' + str(param.default) if param.default else ''
+            p = f' [{param.display_name}{default}]'
+            params += p
+        info['name'] = ret.name
+        info['syntax'] = syntax = f"/{ret.qualified_name}{params}"
+        info['example'] = example or syntax
+        help_desc(info)
+        return ret
+    return wrapper
+
+def group_app_command(*args, **kwargs):
+    kwargs['group'] = True
+    return app_command(*args, **kwargs)
+
+app_commands.command = app_command
+app_commands.Group.command = group_app_command
 
 
 def update_readme_commands():

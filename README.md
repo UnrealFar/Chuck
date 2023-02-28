@@ -12,38 +12,64 @@
 - Chuck has completely migrated to slashecommands.
 
 ## Commands:
+### Music
+- **play**: Plays music in a channel
+    - Syntax: `/play [song] [vc]`
+    - Usage: `/play [song] [vc]`
+- **skip**: Skip the current playing song.
+    - Syntax: `/skip`
+    - Usage: `/skip`
+- **queue**: Get all songs that are to played from the queue!
+    - Syntax: `/queue`
+    - Usage: `/queue`
+
 ### Tags
-- **view**: View a specified tag
-    - Syntax: `/tag view [name]`
-    - Usage: `/tag view Chuck`
-- **list**: View all tags in the current server.
+- **view**: View a tag
+    - Syntax: `/tag view [name] [raw]`
+    - Usage: `/tag view chuck`
+- **list**: View all tags in this server!
     - Syntax: `/tag list`
     - Usage: `/tag list`
-- **create**: Create a tag in the server using ui interface.
+- **create**: Create a tag with ui interface.
     - Syntax: `/tag create`
     - Usage: `/tag create`
 - **edit**: Edit a tag with ui interface.
     - Syntax: `/tag edit`
     - Usage: `/tag edit`
-- **delete**: Delete a tag.
+- **delete**: Delete a tag
     - Syntax: `/tag delete [name]`
-    - Usage: `/tag delete Chuck`
+    - Usage: `/delete tag chuck`
 
 ### Fun
-- **getrock**: Get a rock from the Rock API(by Conos). Search for one or get a random rock.
-    - Syntax: `/getrock <rock>`
-    - Usage: `/getrock glow rock`
-- **getplane**: Get a random plane from the Plane API(by Lexionas)
-    - Syntax: `/getplane`
-    - Usage: `/syntax`
+- **rock**: Get rocks from the rock api!
+    - Syntax: `/get rock [query]`
+    - Usage: `/get rock glow rock`
+- **plane**: Get planes from the plane api!
+    - Syntax: `/get plane`
+    - Usage: `/get plane`
+
+### Misc
+- **stats**: Show Chuck's stats. Also shows server stats if the bot is in a guild.
+    - Syntax: `/stats`
+    - Usage: `/stats`
 
 ### Economy
-- **register**: Register yourself to the Chuck economy system.
-    - Syntax: `/eco register`
-    - Usage: `/eco register`
+- **register**: Register yourself to the Chuck Economy System!
+    - Syntax: `/economy register`
+    - Usage: `/economy register`
 
 ### Welcome
-- **welcome setup**: Set up welcoming system for your server!
+- **setup**: Set up the Chuck Welcome system in your server!
     - Syntax: `/welcome setup`
     - Usage: `/welcome setup`
+
+### Invites
+- **invites**: Check the invites a member has.
+    - Syntax: `/invites [member] [show_invites]`
+    - Usage: `/invites [member] [show_invites]`
+
+### Help
+- **help**: Get help for using Chuck!
+    - Syntax: `/help`
+    - Usage: `/help`
 

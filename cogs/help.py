@@ -64,12 +64,15 @@ class HelpCommand:
 
 
 class HelpCog(commands.Cog):
+    name = "Help"
+
     def __init__(self, bot):
         self.bot = bot
-        self.name = "Help"
 
     @app_commands.command(name = "help")
     async def help_cmd(self, i: discord.Interaction):
+        """Get help for using Chuck!
+        """
         h = HelpCommand(self.bot, i)
         await i.response.send_message(embed = h.embed, view = h.view)
 

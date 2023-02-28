@@ -9,13 +9,13 @@ from bot import Unreal
 
 
 class EconomyCog(commands.Cog):
+    name = "Economy"
     bot: Unreal
     eco = app_commands.Group(
         name="economy", description="Commands related to economy system."
     )
 
     def __init__(self, bot: Unreal):
-        self.name = "Economy"
         self.bot = bot
 
     async def cog_load(self):
@@ -61,15 +61,8 @@ class EconomyCog(commands.Cog):
         except:
             return True
 
-    @eco.command(name="register")
-    @app_commands.help_desc(
-        {
-            "cog": "economy",
-            "name": "register",
-            "description": "Register yourself to the Chuck economy system.",
-            "syntax": "/eco register",
-            "example": "/eco register",
-        }
+    @eco.command(
+        name="register",
     )
     async def register_cmd(self, i: discord.Interaction) -> None:
         """Register yourself to the Chuck Economy System!"""
@@ -78,7 +71,7 @@ class EconomyCog(commands.Cog):
         if _ch:
             await i.response.send_message("You already have an account!")
         else:
-            acc = await self._create_account(uid)
+            await self._create_account(uid)
             em = discord.Embed(
                 title="Welcome to Chuck Economy System!", colour=discord.Colour.gold()
             )

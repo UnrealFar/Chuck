@@ -20,7 +20,7 @@ def propint(d: int):
 
 
 class WSetupM(discord.ui.Modal, title="Welcome Setup"):
-    ctx: commands.Context
+    i: discord.Interaction
 
     ch = ui.TextInput(
         label="Channel ID",
@@ -34,8 +34,8 @@ class WSetupM(discord.ui.Modal, title="Welcome Setup"):
         required=False,
     )
 
-    def __init__(self, cog: WelcomeCog, ctx: commands.Context):
-        self.ctx = ctx
+    def __init__(self, cog: WelcomeCog, i: discord.Interaction):
+        self.i = i
         self.cog = cog
         super().__init__()
 
@@ -85,6 +85,7 @@ class WSetupM(discord.ui.Modal, title="Welcome Setup"):
 
 
 class WelcomeCog(commands.Cog, name="Welcome"):
+    name = "Welcome"
     db: aiosqlite.Connection
 
     def __init__(self, bot: Unreal):
@@ -140,26 +141,15 @@ class WelcomeCog(commands.Cog, name="Welcome"):
                 )
             await m.guild.get_channel(d[2]).send(**ts)
 
-    @commands.hybrid_group(name="welcome")
-    async def welc(self, ctx: commands.Context):
-        ...
 
-    @app_commands.help_desc(
-        {
-            "name": "welcome setup",
-            "description": "Set up welcoming system for your server!",
-            "cog": "welcome",
-            "syntax": "/welcome setup",
-            "example": "/welcome setup",
-        }
+    welc = app_commands.Group(
+        name = "welcome", description = "Commands related to the Chuck welcome system"
     )
+
     @welc.command(name="setup")
-    async def welsetup(self, ctx: commands.Context):
+    async def welsetup(self, i: discord.Interaction):
         """Set up the Chuck Welcome system in your server!"""
-        i = ctx.interaction
-        if not i:
-            await ctx.send("Please use `/welcome setup` to setup the welcome system!")
-        await i.response.send_modal(WSetupM(self, ctx))
+        await i.response.send_modal(WSetupM(self, i))
 
 
 async def setup(bot: Unreal):

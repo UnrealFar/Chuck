@@ -8,10 +8,10 @@ from bot import Unreal
 
 
 class OwnerCog(commands.Cog):
+    name = "Owner"
     bot: Unreal
 
     def __init__(self, bot: Unreal):
-        self.name = "Owner"
         self.bot = bot
 
 

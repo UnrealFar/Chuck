@@ -9,10 +9,10 @@ from bot import Unreal
 
 
 class InvitesCog(commands.Cog):
+    name = "Invites"
     bot: Unreal
 
     def __init__(self, bot: Unreal):
-        self.name = "Invites"
         self.bot = bot
         self.cache: typing.Dict[int, typing.Dict[str, discord.Invite]] = {}
 
