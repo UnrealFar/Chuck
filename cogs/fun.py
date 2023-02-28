@@ -22,7 +22,11 @@ class Fun(commands.Cog):
     async def cog_load(self):
         self.session = self.bot.session
 
-    @app_commands.command(name="getrock")
+    get_commands = app_commands.Group(
+        name = "get", description = "Get data from different APIs"
+    )
+
+    @get_commands.command(name="getrock")
     @app_commands.help_desc(
         {
             "name": "getrock",
@@ -53,7 +57,7 @@ class Fun(commands.Cog):
             em.set_footer(text="With ❤️, Rock API")
             await i.edit_original_message(embed=em)
 
-    @app_commands.command(name="getplane")
+    @get_commands.command(name="getplane")
     @app_commands.help_desc(
         {
             "name": "getplane",

@@ -138,7 +138,9 @@ class Music(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         for vc in self.bot.voice_clients:
-            await vc.disconnect()
+            try:
+                await vc.disconnect()
+            except: pass
 
     async def create_player(
         self, i, vc: typing.Optional[discord.VoiceClient] = None

@@ -67,15 +67,18 @@ class Unreal(commands.AutoShardedBot):
             "cogs.misc",
             "cogs.economy",
             "cogs.welcome",
+            "cogs.invites",
             "cogs.help", # always load the help cog last :)
         )
 
         for cog in cogs:
             await self.load_extension(cog)
+            print("Loaded", cog[5:].capitalize(), "cog!")
 
         await self.tree.sync()
 
         self.app = app.app
+        self.vote_channel = None
         app.app.bot = self
         runner = aiohttp.web.AppRunner(self.app)
         await runner.setup()
@@ -86,7 +89,6 @@ class Unreal(commands.AutoShardedBot):
         print(self.user, "is ready!", end=" ")
         dt = datetime.datetime.now()
         print("Current time and date are", dt.strftime("%-Hh:%-Mm:%-Ss and %-d/%-m/%Y"))
-        self.vote_channel = await self.fetch_channel(880294980076326933)
         await self.run_async(utils.update_readme_commands)
 
     async def on_guild_join(self, guild):
@@ -120,6 +122,7 @@ class Unreal(commands.AutoShardedBot):
 
     async def vote(self, dat, y):
         await self.wait_until_ready()
+        self.vote_channel = self.vote_channel or await self.fetch_channel(880294980076326933)
         t = dat["type"]
         u = dat["user"]
         c = self.vote_channel
@@ -135,15 +138,14 @@ class Unreal(commands.AutoShardedBot):
             pass
 
     async def run_async(self, func, *args, **kwargs) -> typing.Any:
-        async with self:
-            return await self.loop.run_in_executor(
-                None,
-                functools.partial(
-                    func,
-                    *args,
-                    **kwargs,
-                ),
-            )
+        return await self.loop.run_in_executor(
+            None,
+            functools.partial(
+                func,
+                *args,
+                **kwargs,
+            ),
+        )
 
     def run(self) -> Unreal:
         return super().run(self.token)

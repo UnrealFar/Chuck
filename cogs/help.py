@@ -18,7 +18,7 @@ class HelpMenu(discord.ui.View):
         min_values = 1, max_values = 1,
         options = select_options,
     )
-    async def select_callback(self, interaction, select):
+    async def callback(self, interaction, select):
         cog = select.values[0]
         await self.cmd.update_page(interaction, cog.lower())
         await interaction.response.edit_message(embed = self.cmd.embed, view = self)
@@ -36,7 +36,7 @@ class HelpCommand:
         self._mp = None
         self.view = HelpMenu(self)
         self.embed = em = discord.Embed(
-            title = "Help Menu",
+            title = "Help Menu [Home]",
             description = self.main_page()
         )
         em.set_author(name = f"Requested by {interaction.user}", icon_url = interaction.user.display_avatar.url)
@@ -44,9 +44,10 @@ class HelpCommand:
 
     async def update_page(self, i, cog):
         if cog != 'home':
-            desc = f"**{cog.capitalize()}**\n\n"
+            desc = ""
+            self.embed.title = f'Help Menu [{cog.capitalize()}]'
             for n, cmd in utils.HELP_INFO[cog].items():
-                desc += f"**{n.upper()}**\n> {cmd['description']}\n> __Syntax__: `{cmd['syntax']}`\n"
+                desc += f"**{n.upper()}**\n> {cmd['description']}\n> __Syntax__: `{cmd['syntax']}`\n\n"
         else:
             desc = self.main_page()
         self.embed.description = desc

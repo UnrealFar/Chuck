@@ -15,9 +15,8 @@ class MiscCog(commands.Cog):
         self.bot: Unreal = bot
         self.sc = None
         self.smsg = None
-
-    async def cog_load(self):
         self.update_bot_stats.start()
+
 
     @tasks.loop(minutes=30)
     async def update_bot_stats(self):
@@ -40,6 +39,28 @@ class MiscCog(commands.Cog):
         )
         print(f"Updated bot stats on TOPGG!\nData={d}")
 
+    @app_commands.command(name="stats")
+    async def stats_cmd(self, i: discord.Interaction):
+        embed = discord.Embed(
+            title = "Chuck's stats", colour = 0xF47FFF,
+        )
+        gs = len(self.bot.guilds)
+        ss = len(self.bot.shards)
+        us = len(self.bot.users)
+        embed.description = f"""__**BOT STATS**__
+        > **User Count**: I am watching over **(`{us}`)** users!
+        > **Server Count**: I am in **(`{gs}`)** servers!
+        > **Shard Count**: I am running with a shard count of **(`{ss}`)**
+        """
+        g = i.guild
+        if g:
+            mems = g.members
+            embed.description += f"""__**GUILD STATS**__
+            > **Owner**: `{g.owner}` {g.owner.mention}
+            > **Member Count: (`{len(mems)}`) [`{len(tuple(m for m in mems if m.bot is True))}`** Bots**]**
+            """
+        await i.response.send_message(embed = embed)
+        
 
 async def setup(bot: Unreal):
     await bot.add_cog(MiscCog(bot))

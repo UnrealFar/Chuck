@@ -26,3 +26,4 @@ def update_readme_commands():
         cas += cs + "\n"
     with open("README.md", "w") as rf:
         rf.write(cas)
+        print("Updated README.md!")
