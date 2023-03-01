@@ -1,4 +1,4 @@
-discord.py>=2.0.1
+discord.py>=2.2.0
 jishaku
 aiosqlite
 PyNaCl
