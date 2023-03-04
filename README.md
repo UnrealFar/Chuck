@@ -9,7 +9,7 @@
 - As of now, Chuck is in v3.0.0b
 - We hope to add a lot more features to the bot in the upcoming future!
 - Stay safe!
-- Chuck has completely migrated to slashecommands.
+- Chuck has completely migrated to slash commands.
 
 ## Commands:
 ### Music
